@@ -31,10 +31,10 @@
       font-size: 14px;
       margin-bottom: 5px;
     }
-    .input-field input {
+    .input-field select {
       padding: 10px;
       font-size: 14px;
-      width: 200px;
+      width: 220px;
       margin-bottom: 15px;
     }
   </style>
@@ -42,34 +42,28 @@
     function generateFileButtons() {
       const basePath = 'https://trafficwaves.github.io/';
 
-      // Get values from input fields
-      const dateInput = document.getElementById('date-input').value;
-      const laneInput = document.getElementById('lane-input').value;
-      const fileInput = document.getElementById('file-input').value;
+      const dateInput = document.getElementById('date-select').value;
+      const laneInput = document.getElementById('lane-select').value;
+      const indexInput = document.getElementById('index-select').value;
+      const speedInput = document.getElementById('speed-select').value;
 
-      if (!dateInput || !laneInput || !fileInput) {
-        alert('Please fill in all fields before generating buttons.');
+      if (!dateInput || !laneInput || !indexInput || !speedInput) {
+        alert('Please select all options before generating buttons.');
         return;
       }
 
-      const lanes = laneInput.split(',').map(lane => lane.trim());
-      const files = fileInput.split(',').map(file => file.trim());
-
+      const fileName = `${indexInput}_${speedInput}.svg`;
       const container = document.getElementById('file-buttons');
       container.innerHTML = ''; // Clear any existing buttons
 
-      lanes.forEach(lane => {
-        files.forEach(file => {
-          const filePath = `${basePath}${dateInput}/lane_${lane}/${file}`;
-          const button = document.createElement('button');
-          button.textContent = `View: ${dateInput} Lane ${lane} ${file}`;
-          button.className = 'button';
-          button.onclick = () => {
-            window.open(filePath, '_blank');
-          };
-          container.appendChild(button);
-        });
-      });
+      const filePath = `${basePath}${dateInput}/lane_${laneInput}/${fileName}`;
+      const button = document.createElement('button');
+      button.textContent = `View: ${dateInput} Lane ${laneInput} ${fileName}`;
+      button.className = 'button';
+      button.onclick = () => {
+        window.open(filePath, '_blank');
+      };
+      container.appendChild(button);
     }
   </script>
 </head>
@@ -78,18 +72,48 @@
   <p>Select a wave topology to view:</p>
 
   <div class="input-field">
-    <label for="date-input">Enter Date (e.g., 2022-11-22):</label>
-    <input type="text" id="date-input" placeholder="YYYY-MM-DD">
+    <label for="date-select">Select Date:</label>
+    <select id="date-select">
+      <option value="2022-11-22">2022-11-22</option>
+      <option value="2022-11-28">2022-11-28</option>
+      <option value="2022-11-29">2022-11-29</option>
+      <option value="2022-11-30">2022-11-30</option>
+      <option value="2022-12-01">2022-12-01</option>
+      <option value="2022-12-02">2022-12-02</option>
+    </select>
   </div>
 
   <div class="input-field">
-    <label for="lane-input">Enter Lanes (comma-separated, e.g., 1,2,3):</label>
-    <input type="text" id="lane-input" placeholder="e.g., 1,2,3">
+    <label for="lane-select">Select Lane:</label>
+    <select id="lane-select">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+    </select>
   </div>
 
   <div class="input-field">
-    <label for="file-input">Enter Filenames (comma-separated, e.g., 1_15.svg,2_30.svg):</label>
-    <input type="text" id="file-input" placeholder="e.g., 1_15.svg,2_30.svg">
+    <label for="index-select">Select Index:</label>
+    <select id="index-select">
+      <!-- Dynamically generate index options -->
+      <script>
+        const indexSelect = document.getElementById('index-select');
+        for (let i = 1; i <= 100; i++) {
+          const option = document.createElement('option');
+          option.value = i;
+          option.textContent = i;
+          indexSelect.appendChild(option);
+        }
+      </script>
+    </select>
+  </div>
+
+  <div class="input-field">
+    <label for="speed-select">Select Speed:</label>
+    <select id="speed-select">
+      <option value="15">15</option>
+    </select>
   </div>
 
   <button class="button" onclick="generateFileButtons()">Generate Buttons</button>
