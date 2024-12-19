@@ -23,39 +23,77 @@
     .button:hover {
       background-color: #0056b3;
     }
+    .input-field {
+      margin: 10px;
+    }
+    .input-field label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+    .input-field input {
+      padding: 10px;
+      font-size: 14px;
+      width: 200px;
+      margin-bottom: 15px;
+    }
   </style>
   <script>
     function generateFileButtons() {
       const basePath = 'https://trafficwaves.github.io/';
-      const dates = ['2022-11-22']; // Add your specific dates here
-      const lanes = [1]; // Define the lane numbers
-      const files = ['1_15.svg']; // Define the filenames in each lane
+
+      // Get values from input fields
+      const dateInput = document.getElementById('date-input').value;
+      const laneInput = document.getElementById('lane-input').value;
+      const fileInput = document.getElementById('file-input').value;
+
+      if (!dateInput || !laneInput || !fileInput) {
+        alert('Please fill in all fields before generating buttons.');
+        return;
+      }
+
+      const lanes = laneInput.split(',').map(lane => lane.trim());
+      const files = fileInput.split(',').map(file => file.trim());
 
       const container = document.getElementById('file-buttons');
       container.innerHTML = ''; // Clear any existing buttons
 
-      dates.forEach(date => {
-        lanes.forEach(lane => {
-          files.forEach(file => {
-            const filePath = `${basePath}${date}/lane_${lane}/${file}`;
-            const button = document.createElement('button');
-            button.textContent = `View: ${date} Lane ${lane} ${file}`;
-            button.className = 'button';
-            button.onclick = () => {
-              window.open(filePath, '_blank');
-            };
-            container.appendChild(button);
-          });
+      lanes.forEach(lane => {
+        files.forEach(file => {
+          const filePath = `${basePath}${dateInput}/lane_${lane}/${file}`;
+          const button = document.createElement('button');
+          button.textContent = `View: ${dateInput} Lane ${lane} ${file}`;
+          button.className = 'button';
+          button.onclick = () => {
+            window.open(filePath, '_blank');
+          };
+          container.appendChild(button);
         });
       });
     }
-
-    document.addEventListener('DOMContentLoaded', generateFileButtons);
   </script>
 </head>
 <body>
   <h1>Welcome to the Gallery of Traffic Wave Dynamics!</h1>
   <p>Select a wave topology to view:</p>
+
+  <div class="input-field">
+    <label for="date-input">Enter Date (e.g., 2022-11-22):</label>
+    <input type="text" id="date-input" placeholder="YYYY-MM-DD">
+  </div>
+
+  <div class="input-field">
+    <label for="lane-input">Enter Lanes (comma-separated, e.g., 1,2,3):</label>
+    <input type="text" id="lane-input" placeholder="e.g., 1,2,3">
+  </div>
+
+  <div class="input-field">
+    <label for="file-input">Enter Filenames (comma-separated, e.g., 1_15.svg,2_30.svg):</label>
+    <input type="text" id="file-input" placeholder="e.g., 1_15.svg,2_30.svg">
+  </div>
+
+  <button class="button" onclick="generateFileButtons()">Generate Buttons</button>
+
   <div id="file-buttons">
     <!-- Buttons will be dynamically populated here -->
   </div>
