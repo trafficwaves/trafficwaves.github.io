@@ -18,20 +18,46 @@
       border-radius: 5px;
       font-size: 16px;
       cursor: pointer;
+      margin: 5px;
     }
     .button:hover {
       background-color: #0056b3;
     }
   </style>
+  <script>
+    function generateFileButtons() {
+      const basePath = 'https://trafficwaves.github.io/';
+      const dates = ['2022-11-22']; // Add your specific dates here
+      const lanes = [1]; // Define the lane numbers
+      const files = ['1_15.svg']; // Define the filenames in each lane
+
+      const container = document.getElementById('file-buttons');
+      container.innerHTML = ''; // Clear any existing buttons
+
+      dates.forEach(date => {
+        lanes.forEach(lane => {
+          files.forEach(file => {
+            const filePath = `${basePath}${date}/lane_${lane}/${file}`;
+            const button = document.createElement('button');
+            button.textContent = `View: ${date} Lane ${lane} ${file}`;
+            button.className = 'button';
+            button.onclick = () => {
+              window.open(filePath, '_blank');
+            };
+            container.appendChild(button);
+          });
+        });
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', generateFileButtons);
+  </script>
 </head>
 <body>
   <h1>Welcome to the Gallery of Traffic Wave Dynamics!</h1>
-  <p>Click the button below to view the wave topology.</p>
-  <a href="skeleton.svg" target="_blank">
-    <button class="button">View the wave topology</button>
-  </a>
-  <a href="8_15.svg" target="_blank">
-    <button class="button">View another wave topology</button>
-  </a>
+  <p>Select a wave topology to view:</p>
+  <div id="file-buttons">
+    <!-- Buttons will be dynamically populated here -->
+  </div>
 </body>
 </html>
