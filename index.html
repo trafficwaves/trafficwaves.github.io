@@ -138,7 +138,7 @@
         return;
       }
 
-      const csvFile = `cc_properties_lane_${lane}.csv`;
+      const csvFile = `https://trafficwaves.github.io/cc_properties_lane_${lane}.csv`;
       try {
         const response = await fetch(csvFile);
         if (!response.ok) {
@@ -227,7 +227,28 @@
       }));
 
       if (clusterChart) clusterChart.destroy();
-      clusterChart = new Chart(ctx, { type: 'scatter', data: { datasets } });
+      clusterChart = new Chart(ctx, {
+        type: 'scatter',
+        data: { datasets },
+        options: {
+          scales: {
+            x: {
+              title: {
+                display: true,
+                text: 'Number of Bifurcations' // X-axis Title
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Wave Length' // Y-axis Title
+              },
+              min : 0,
+              max : 4
+            }
+          }
+        }
+      });
     }
   </script>
 </body>
