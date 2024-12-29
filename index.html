@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Traffic Wave Dynamics with Visualization</title>
+  <title>Traffic Wave Dynamics</title>
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap" rel="stylesheet">
   <style>
     /* Global Styles */
@@ -76,7 +76,59 @@
 <body>
   <!-- Controls Panel -->
   <div class="controls">
-    <h1>Traffic Wave Dynamics</h1>
+    <h1> Gallery of Traffic Wave Dynamics</h1>
+    <p>
+      This is the gallery of the wave components identified from 
+      <a href="https://i24motion.org" target="_blank" style="color: #3498db; text-decoration: none;">I-24 MOTION INCEPTIONv1</a> data.
+    </p>
+    <p>
+      You can select a date, lane and then click on the "Load Lane Data" button to view the clusters of wave components by the number of bifurcations, 
+      the number of mergers, and wave length. 
+    </p>
+    <p>
+      The visualization panel on the right is a simplified scatter plot of the wave lenght (mile, in Y-axis) 
+      vs. the number of bifurcations (in X-axis).
+    </p>
+    <p>
+      You can have an idea of how complex each wave component is (based on the number of bifurcations) and how long it is (wave length).
+    </p>
+    </p>
+    <p style="background-color: #FEEEB6; padding: 10px; border-radius: 5px;">
+      Highlight: Wave topology can range from remarkably simple to incredibly complex.
+       Some waves travel over three miles without any bifurcations before merging, while others can bifurcate up to 20 times along their propagation!
+    </p>
+    <p>
+      Pick the cluster you're interested in, click on "Next" and you can view the detailed wave component by clicking on the buttons in the "Available Indices".
+      It will give you all the wave components in your selected date and lane and the cluster with the information of wave length, number of bifurcations, and number of mergers.
+    </p>
+    <p>
+      Click on the button to view the detailed wave component in the SVG format.
+    </p>
+    </p>
+    <p style="background-color: #FEEEB6; padding: 12px; border-radius: 5px; font-size: 20px; font-weight: bold;">
+      Enjoy the beauty of the wave dynamics!
+    </p>
+    </p>
+    </p>
+    <p>
+      For technical details, please refer to the paper:
+      <a href="https://arxiv.org/abs/2409.00326" target="_blank" style="color: #3498db; text-decoration: none;">Scalable analysis of stop-and-go waves</a>.
+    </p>
+    <p>
+      If you find this resource useful, please consider citing the paper:
+    </p>
+    <div style="background-color: #f4f4f4; border-left: 4px solid #3498db; padding: 10px; margin: 15px 0; font-family: 'Courier New', monospace; font-size: 0.95em; overflow-x: auto;">
+      <pre style="margin: 0; white-space: pre-wrap;">
+  @article{ji2024scalable,
+    title={Scalable analysis of stop-and-go waves},
+    author={Ji, Junyi and Gloudemans, Derek and Wang, Yanbing and Zach{\'a}r, Gergely 
+    and Barbour, William and Sprinkle, Jonathan and Piccoli, Benedetto and Work, Daniel B},
+    journal={arXiv preprint arXiv:2409.00326},
+    year={2024}
+  }
+      </pre>
+    </div>
+  
 
     <!-- Date Selection -->
     <div class="input-field">
@@ -205,7 +257,7 @@
       filteredRows.forEach(row => {
         const button = document.createElement('button');
         button.className = 'button';
-        button.textContent = `View Index ${row.cc_id} (Wave Length: ${parseFloat(row.wave_length).toFixed(2)}, Bifurcations: ${row.num_bifurcations}, Merges: ${row.num_mergers})`;
+        button.textContent = `View Index ${row.cc_id} (Wave Length: ${parseFloat(row.wave_length).toFixed(2)} mile, Bifurcations: ${row.num_bifurcations}, Merges: ${row.num_mergers})`;
         button.onclick = () => {
           const filePath = `https://trafficwaves.github.io/${date}/lane_${lane}/${row.cc_id}_15.svg`;
           window.open(filePath, '_blank');
