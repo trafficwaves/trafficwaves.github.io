@@ -197,13 +197,13 @@
       const indexContainer = document.getElementById('index-container');
       indexContainer.innerHTML = '';
 
-      const filteredRows = csvData.filter(row => row.cluster === cluster);
+      const filteredRows = csvData.filter(row => row.date === date && row.cluster === cluster);
       filteredRows.forEach(row => {
         const button = document.createElement('button');
         button.className = 'button';
         button.textContent = `View Index ${row.cc_id}`;
         button.onclick = () => {
-          const filePath = `https://trafficwaves.github.io/${row.date}/lane_${row.lane}/${row.cc_id}_15.svg`;
+          const filePath = `https://trafficwaves.github.io/${date}/lane_${lane}/${row.cc_id}_15.svg`;
           window.open(filePath, '_blank');
         };
         indexContainer.appendChild(button);
@@ -215,19 +215,26 @@
     // Render Cluster Visualization
     function renderVisualization() {
       const ctx = document.getElementById('clusterChart').getContext('2d');
-      const uniqueClusters = [...new Set(csvData.map(row => row.cluster))];
-      const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33C4'];
+      const data = csvData.map(row => ({
+        x: parseFloat(row.num_bifurcations),
+        y: parseFloat(row.wave_length),
+        cluster: row.cluster,
+      }));
 
-      if (clusterChart) clusterChart.destroy();
+      const colors = ['#FF5733', '#33FF57', '#3357FF'];
+
+      if (clusterChart) {
+        clusterChart.destroy();
+      }
 
       clusterChart = new Chart(ctx, {
         type: 'scatter',
         data: {
-          datasets: uniqueClusters.map((cluster, index) => ({
-            label: `Cluster ${cluster}`,
-            data: csvData.filter(row => row.cluster === cluster)
-              .map(row => ({ x: parseFloat(row.num_bifurcations), y: parseFloat(row.wave_length) })),
+          datasets: data.map((point, index) => ({
+            label: `Cluster ${point.cluster}`,
+            data: [{ x: point.x, y: point.y }],
             backgroundColor: colors[index % colors.length],
+            pointRadius: 5,
           })),
         },
         options: {
@@ -236,9 +243,9 @@
           },
           scales: {
             x: { title: { text: 'Number of Bifurcations', font: { family: 'Lora', size: 16 } } },
-            y: { title: { text: 'Wave Distance', font: { family: 'Lora', size: 16 } } }
-          }
-        }
+            y: { title: { text: 'Wave Distance', font: { family: 'Lora', size: 16 } }, min = 0, max = 4},
+          },
+        },
       });
     }
   </script>
