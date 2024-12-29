@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Traffic Wave Dynamics with Visualization</title>
-  <!-- Load Lora Font from Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap" rel="stylesheet">
   <style>
     /* Global Styles */
@@ -15,7 +14,6 @@
       margin: 20px;
     }
 
-    /* Controls Section */
     .controls {
       flex: 1;
       margin-right: 20px;
@@ -45,7 +43,6 @@
       background-color: #0056b3;
     }
 
-    /* Input Fields */
     .input-field {
       margin: 10px 0;
     }
@@ -54,14 +51,12 @@
       display: block;
       font-size: 16px;
       margin-bottom: 5px;
-      font-family: 'Lora', serif;
     }
 
     .input-field select {
       padding: 8px;
       font-size: 14px;
       width: 200px;
-      font-family: 'Lora', serif;
     }
 
     #cluster-section, #index-section {
@@ -135,7 +130,7 @@
     let csvData = [];
     let clusterChart;
 
-    // Dynamically load CSV file based on Lane
+    // Load CSV Data
     async function loadLaneCSV() {
       const lane = document.getElementById('lane-select').value;
       if (!lane) {
@@ -150,7 +145,6 @@
           throw new Error(`Failed to load ${csvFile}.`);
         }
         const csvText = await response.text();
-        console.log('CSV Content:', csvText); // Debugging
         parseCSV(csvText);
       } catch (error) {
         console.error('Error loading CSV:', error);
@@ -171,7 +165,6 @@
         return entry;
       });
 
-      console.log('Parsed CSV Data:', csvData); // Debugging
       populateClusterDropdown();
       renderVisualization();
     }
@@ -180,7 +173,7 @@
     function populateClusterDropdown() {
       const date = document.getElementById('date-select').value;
       const clusterSelect = document.getElementById('cluster-select');
-      clusterSelect.innerHTML = '<option value="">-- Select Cluster --</option>';
+      clusterSelect.innerHTML = '';
 
       const uniqueClusters = [...new Set(csvData.filter(row => row.date === date).map(row => row.cluster))];
       uniqueClusters.forEach(cluster => {
@@ -193,17 +186,16 @@
       document.getElementById('cluster-section').style.display = 'block';
     }
 
-    // Show Index Section
+    // Show Indices
     function showIndexSection() {
       const date = document.getElementById('date-select').value;
+      const lane = document.getElementById('lane-select').value;
       const cluster = document.getElementById('cluster-select').value;
 
       const indexContainer = document.getElementById('index-container');
       indexContainer.innerHTML = '';
 
       const filteredRows = csvData.filter(row => row.date === date && row.cluster === cluster);
-      console.log('Filtered Rows:', filteredRows);
-
       filteredRows.forEach(row => {
         const button = document.createElement('button');
         button.className = 'button';
@@ -221,25 +213,21 @@
     // Render Visualization
     function renderVisualization() {
       const ctx = document.getElementById('clusterChart').getContext('2d');
-      const data = csvData.map(row => ({
-        x: parseFloat(row.num_bifurcations),
-        y: parseFloat(row.wave_length),
-        cluster: row.cluster,
-      })).filter(row => !isNaN(row.x) && !isNaN(row.y));
+      const groupedData = {};
 
-      console.log('Visualization Data:', data);
+      csvData.forEach(row => {
+        if (!groupedData[row.cluster]) groupedData[row.cluster] = [];
+        groupedData[row.cluster].push({ x: parseFloat(row.num_bifurcations), y: parseFloat(row.wave_length) });
+      });
+
+      const datasets = Object.keys(groupedData).map(cluster => ({
+        label: `Cluster ${cluster}`,
+        data: groupedData[cluster],
+        pointRadius: 5,
+      }));
 
       if (clusterChart) clusterChart.destroy();
-
-      clusterChart = new Chart(ctx, {
-        type: 'scatter',
-        data: {
-          datasets: data.map(point => ({
-            label: `Cluster ${point.cluster}`,
-            data: [{ x: point.x, y: point.y }],
-          })),
-        }
-      });
+      clusterChart = new Chart(ctx, { type: 'scatter', data: { datasets } });
     }
   </script>
 </body>
