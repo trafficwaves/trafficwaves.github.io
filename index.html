@@ -4,55 +4,74 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Traffic Wave Dynamics with Visualization</title>
+  <!-- Load Lora Font from Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap" rel="stylesheet">
   <style>
+    /* Global Styles */
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Lora', serif;
       display: flex;
       flex-direction: row;
       margin: 20px;
     }
+
+    /* Controls Section */
     .controls {
       flex: 1;
       margin-right: 20px;
     }
+
     .visualization {
       flex: 1;
       border: 1px solid #ccc;
       padding: 20px;
       text-align: center;
     }
+
+    /* Buttons */
     .button {
       background-color: #007BFF;
       color: white;
       padding: 10px 15px;
       border: none;
       border-radius: 5px;
-      font-size: 14px;
+      font-size: 16px;
       cursor: pointer;
       margin: 5px;
+      font-family: 'Lora', serif;
     }
+
     .button:hover {
       background-color: #0056b3;
     }
+
+    /* Input Fields */
     .input-field {
       margin: 10px 0;
     }
+
     .input-field label {
       display: block;
-      font-size: 14px;
+      font-size: 16px;
       margin-bottom: 5px;
+      font-family: 'Lora', serif;
     }
+
     .input-field select {
-      padding: 5px;
+      padding: 8px;
       font-size: 14px;
       width: 200px;
+      font-family: 'Lora', serif;
     }
+
     #cluster-section, #index-section {
       margin-top: 20px;
     }
+
     #index-container {
       margin-top: 20px;
     }
+
     canvas {
       margin-top: 20px;
     }
@@ -60,6 +79,7 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+  <!-- Controls Panel -->
   <div class="controls">
     <h1>Traffic Wave Dynamics</h1>
 
@@ -205,22 +225,18 @@
         data: {
           datasets: uniqueClusters.map((cluster, index) => ({
             label: `Cluster ${cluster}`,
-            data: csvData
-              .filter(row => row.cluster === cluster)
+            data: csvData.filter(row => row.cluster === cluster)
               .map(row => ({ x: parseFloat(row.num_bifurcations), y: parseFloat(row.wave_length) })),
             backgroundColor: colors[index % colors.length],
           })),
         },
         options: {
           plugins: {
-            legend: {
-              display: true,
-              position: 'top'
-            }
+            legend: { labels: { font: { family: 'Lora', size: 14 } } }
           },
           scales: {
-            x: { title: { display: true, text: 'Number of Bifurcations' } },
-            y: { title: { display: true, text: 'Wave Distance' } },
+            x: { title: { text: 'Number of Bifurcations', font: { family: 'Lora', size: 16 } } },
+            y: { title: { text: 'Wave Distance', font: { family: 'Lora', size: 16 } } }
           }
         }
       });
