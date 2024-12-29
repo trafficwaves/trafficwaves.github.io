@@ -3,20 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Traffic Wave Dynamics</title>
+  <title>Traffic Wave Dynamics with Visualization</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: row;
+      margin: 20px;
+    }
+    .controls {
+      flex: 1;
+      margin-right: 20px;
+    }
+    .visualization {
+      flex: 1;
+      border: 1px solid #ccc;
+      padding: 20px;
       text-align: center;
-      margin: 50px;
     }
     .button {
       background-color: #007BFF;
       color: white;
-      padding: 15px 25px;
+      padding: 10px 15px;
       border: none;
       border-radius: 5px;
-      font-size: 16px;
+      font-size: 14px;
       cursor: pointer;
       margin: 5px;
     }
@@ -24,7 +35,7 @@
       background-color: #0056b3;
     }
     .input-field {
-      margin: 15px;
+      margin: 10px 0;
     }
     .input-field label {
       display: block;
@@ -32,63 +43,66 @@
       margin-bottom: 5px;
     }
     .input-field select {
-      padding: 10px;
+      padding: 5px;
       font-size: 14px;
-      width: 220px;
-      margin-bottom: 15px;
+      width: 200px;
     }
-    #lane-section, #cluster-section, #index-section {
-      display: none;
-      margin-top: 30px;
+    #cluster-section, #index-section {
+      margin-top: 20px;
     }
-    #file-buttons {
+    #index-container {
+      margin-top: 20px;
+    }
+    canvas {
       margin-top: 20px;
     }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-  <h1>Traffic Wave Dynamics</h1>
-  <p>Select your options below:</p>
+  <div class="controls">
+    <h1>Traffic Wave Dynamics</h1>
 
-  <!-- Date Selection -->
-  <div class="input-field">
-    <label for="date-select">Select Date:</label>
-    <select id="date-select">
-      <option value="2022-11-22">2022-11-22</option>
-      <option value="2022-11-28">2022-11-28</option>
-      <option value="2022-11-29">2022-11-29</option>
-      <option value="2022-11-30">2022-11-30</option>
-      <option value="2022-12-01">2022-12-01</option>
-      <option value="2022-12-02">2022-12-02</option>
-    </select>
-  </div>
-
-  <!-- Lane Selection -->
-  <div class="input-field">
-    <label for="lane-select">Select Lane:</label>
-    <select id="lane-select">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-    </select>
-  </div>
-  <button class="button" onclick="loadLaneCSV()">Load Lane Data</button>
-
-  <!-- Cluster Selection -->
-  <div id="cluster-section">
-    <h2>Select Cluster</h2>
+    <!-- Date Selection -->
     <div class="input-field">
-      <label for="cluster-select">Select Cluster:</label>
-      <select id="cluster-select"></select>
+      <label for="date-select">Select Date:</label>
+      <select id="date-select">
+        <option value="2022-11-22">2022-11-22</option>
+        <option value="2022-11-28">2022-11-28</option>
+        <option value="2022-11-29">2022-11-29</option>
+        <option value="2022-11-30">2022-11-30</option>
+        <option value="2022-12-01">2022-12-01</option>
+        <option value="2022-12-02">2022-12-02</option>
+      </select>
     </div>
-    <button class="button" onclick="showIndexSection()">Next</button>
-  </div>
 
-  <!-- Index Display -->
-  <div id="index-section">
-    <h2>Available Indices</h2>
-    <div id="index-container"></div>
+    <!-- Lane Selection -->
+    <div class="input-field">
+      <label for="lane-select">Select Lane:</label>
+      <select id="lane-select">
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+    <button class="button" onclick="loadLaneCSV()">Load Lane Data</button>
+
+    <!-- Cluster Selection -->
+    <div id="cluster-section" style="display: none;">
+      <h2>Select Cluster</h2>
+      <div class="input-field">
+        <label for="cluster-select">Select Cluster:</label>
+        <select id="cluster-select"></select>
+      </div>
+      <button class="button" onclick="showIndexSection()">Next</button>
+    </div>
+
+    <!-- Index Display -->
+    <div id="index-section" style="display: none;">
+      <h2>Available Indices</h2>
+      <div id="index-container"></div>
+    </div>
   </div>
 
   <!-- Visualization Panel -->
@@ -99,8 +113,9 @@
 
   <script>
     let csvData = [];
+    let clusterChart;
 
-    // Dynamically load the CSV based on lane
+    // Dynamically load CSV file based on Lane
     async function loadLaneCSV() {
       const lane = document.getElementById('lane-select').value;
       if (!lane) {
@@ -112,7 +127,7 @@
       try {
         const response = await fetch(csvFile);
         if (!response.ok) {
-          throw new Error(`Failed to load ${csvFile}. File not found.`);
+          throw new Error(`Failed to load ${csvFile}.`);
         }
         const csvText = await response.text();
         parseCSV(csvText);
@@ -135,17 +150,16 @@
         return entry;
       });
 
-      populateClusterDropdown()
+      populateClusterDropdown();
       renderVisualization();
     }
 
     // Populate Cluster Dropdown
     function populateClusterDropdown() {
-      const date = document.getElementById('date-select').value;
       const clusterSelect = document.getElementById('cluster-select');
       clusterSelect.innerHTML = '<option value="">-- Select Cluster --</option>';
 
-      const uniqueClusters = [...new Set(csvData.filter(row => row.date === date).map(row => row.cluster))];
+      const uniqueClusters = [...new Set(csvData.map(row => row.cluster))];
       uniqueClusters.forEach(cluster => {
         const option = document.createElement('option');
         option.value = cluster;
@@ -158,25 +172,18 @@
 
     // Show Index Section
     function showIndexSection() {
-      const date = document.getElementById('date-select').value;
-      const lane = document.getElementById('lane-select').value;
       const cluster = document.getElementById('cluster-select').value;
-
-      if (!cluster) {
-        alert('Please select a cluster first.');
-        return;
-      }
 
       const indexContainer = document.getElementById('index-container');
       indexContainer.innerHTML = '';
 
-      const filteredRows = csvData.filter(row => row.date === date && row.cluster === cluster);
+      const filteredRows = csvData.filter(row => row.cluster === cluster);
       filteredRows.forEach(row => {
         const button = document.createElement('button');
         button.className = 'button';
-        button.textContent = `View Index ${row.cc_id}`;
+        button.textContent = `View Index ${row.num_cc}`;
         button.onclick = () => {
-          const filePath = `https://trafficwaves.github.io/${date}/lane_${lane}/${row.cc_id}_15.svg`;
+          const filePath = `https://trafficwaves.github.io/${row.date}/lane_${row.lane}/${row.num_cc}.svg`;
           window.open(filePath, '_blank');
         };
         indexContainer.appendChild(button);
@@ -184,6 +191,7 @@
 
       document.getElementById('index-section').style.display = 'block';
     }
+
     // Render Cluster Visualization
     function renderVisualization() {
       const ctx = document.getElementById('clusterChart').getContext('2d');
@@ -195,9 +203,7 @@
 
       const colors = ['#FF5733', '#33FF57', '#3357FF'];
 
-      if (clusterChart) {
-        clusterChart.destroy();
-      }
+      if (clusterChart) clusterChart.destroy();
 
       clusterChart = new Chart(ctx, {
         type: 'scatter',
@@ -206,14 +212,7 @@
             label: `Cluster ${point.cluster}`,
             data: [{ x: point.x, y: point.y }],
             backgroundColor: colors[index % colors.length],
-            pointRadius: 5,
           })),
-        },
-        options: {
-          scales: {
-            x: { title: { display: true, text: 'Number of Bifurcations' } },
-            y: { title: { display: true, text: 'Wave Distance' } },
-          },
         },
       });
     }
