@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wave Topology Example</title>
+  <title>Traffic Wave Dynamics</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -24,7 +24,7 @@
       background-color: #0056b3;
     }
     .input-field {
-      margin: 10px;
+      margin: 15px;
     }
     .input-field label {
       display: block;
@@ -37,40 +37,20 @@
       width: 220px;
       margin-bottom: 15px;
     }
-  </style>
-  <script>
-    function generateFileButtons() {
-      const basePath = 'https://trafficwaves.github.io/';
-
-      const dateInput = document.getElementById('date-select').value;
-      const laneInput = document.getElementById('lane-select').value;
-      const indexInput = document.getElementById('index-select').value;
-      const speedInput = document.getElementById('speed-select').value;
-
-      if (!dateInput || !laneInput || !indexInput || !speedInput) {
-        alert('Please select all options before generating buttons.');
-        return;
-      }
-
-      const fileName = `${indexInput}_${speedInput}.svg`;
-      const container = document.getElementById('file-buttons');
-      container.innerHTML = ''; // Clear any existing buttons
-
-      const filePath = `${basePath}${dateInput}/lane_${laneInput}/${fileName}`;
-      const button = document.createElement('button');
-      button.textContent = `View: ${dateInput} Lane ${laneInput} ${fileName}`;
-      button.className = 'button';
-      button.onclick = () => {
-        window.open(filePath, '_blank');
-      };
-      container.appendChild(button);
+    #lane-section, #cluster-section, #index-section {
+      display: none;
+      margin-top: 30px;
     }
-  </script>
+    #file-buttons {
+      margin-top: 20px;
+    }
+  </style>
 </head>
 <body>
-  <h1>Welcome to the Gallery of Traffic Wave Dynamics!</h1>
-  <p>Select a wave topology to view:</p>
+  <h1>Traffic Wave Dynamics</h1>
+  <p>Select your options below:</p>
 
+  <!-- Date Selection -->
   <div class="input-field">
     <label for="date-select">Select Date:</label>
     <select id="date-select">
@@ -83,6 +63,7 @@
     </select>
   </div>
 
+  <!-- Lane Selection -->
   <div class="input-field">
     <label for="lane-select">Select Lane:</label>
     <select id="lane-select">
@@ -92,34 +73,110 @@
       <option value="4">4</option>
     </select>
   </div>
+  <button class="button" onclick="loadLaneCSV()">Load Lane Data</button>
 
-  <div class="input-field">
-    <label for="index-select">Select Index:</label>
-    <select id="index-select">
-      <!-- Dynamically generate index options -->
-      <script>
-        const indexSelect = document.getElementById('index-select');
-        for (let i = 1; i <= 100; i++) {
-          const option = document.createElement('option');
-          option.value = i;
-          option.textContent = i;
-          indexSelect.appendChild(option);
+  <!-- Cluster Selection -->
+  <div id="cluster-section">
+    <h2>Select Cluster</h2>
+    <div class="input-field">
+      <label for="cluster-select">Select Cluster:</label>
+      <select id="cluster-select"></select>
+    </div>
+    <button class="button" onclick="showIndexSection()">Next</button>
+  </div>
+
+  <!-- Index Display -->
+  <div id="index-section">
+    <h2>Available Indices</h2>
+    <div id="index-container"></div>
+  </div>
+
+  <script>
+    let csvData = [];
+
+    // Dynamically load the CSV based on lane
+    async function loadLaneCSV() {
+      const lane = document.getElementById('lane-select').value;
+      if (!lane) {
+        alert('Please select a lane first.');
+        return;
+      }
+
+      const csvFile = `cc_properties_lane_${lane}.csv`;
+      try {
+        const response = await fetch(csvFile);
+        if (!response.ok) {
+          throw new Error(`Failed to load ${csvFile}. File not found.`);
         }
-      </script>
-    </select>
-  </div>
+        const csvText = await response.text();
+        parseCSV(csvText);
+      } catch (error) {
+        console.error('Error loading CSV:', error);
+        alert(`Failed to load CSV file for Lane ${lane}.`);
+      }
+    }
 
-  <div class="input-field">
-    <label for="speed-select">Select Speed:</label>
-    <select id="speed-select">
-      <option value="15">15</option>
-    </select>
-  </div>
+    // Parse CSV
+    function parseCSV(csvText) {
+      const rows = csvText.trim().split('\n').map(row => row.split(','));
+      const headers = rows.shift().map(header => header.trim());
 
-  <button class="button" onclick="generateFileButtons()">Generate Buttons</button>
+      csvData = rows.map(row => {
+        const entry = {};
+        headers.forEach((header, index) => {
+          entry[header] = row[index]?.trim();
+        });
+        return entry;
+      });
 
-  <div id="file-buttons">
-    <!-- Buttons will be dynamically populated here -->
-  </div>
+      populateClusterDropdown();
+    }
+
+    // Populate Cluster Dropdown
+    function populateClusterDropdown() {
+      const date = document.getElementById('date-select').value;
+      const clusterSelect = document.getElementById('cluster-select');
+      clusterSelect.innerHTML = '<option value="">-- Select Cluster --</option>';
+
+      const uniqueClusters = [...new Set(csvData.filter(row => row.date === date).map(row => row.cluster))];
+      uniqueClusters.forEach(cluster => {
+        const option = document.createElement('option');
+        option.value = cluster;
+        option.textContent = `Cluster ${cluster}`;
+        clusterSelect.appendChild(option);
+      });
+
+      document.getElementById('cluster-section').style.display = 'block';
+    }
+
+    // Show Index Section
+    function showIndexSection() {
+      const date = document.getElementById('date-select').value;
+      const lane = document.getElementById('lane-select').value;
+      const cluster = document.getElementById('cluster-select').value;
+
+      if (!cluster) {
+        alert('Please select a cluster first.');
+        return;
+      }
+
+      const indexContainer = document.getElementById('index-container');
+      indexContainer.innerHTML = '';
+
+      const filteredRows = csvData.filter(row => row.date === date && row.cluster === cluster);
+      filteredRows.forEach(row => {
+        const button = document.createElement('button');
+        button.className = 'button';
+        button.textContent = `View Index ${row.num_cc}`;
+        button.onclick = () => {
+          const filePath = `https://trafficwaves.github.io/${date}/lane_${lane}/${row.num_cc}.svg`;
+          window.open(filePath, '_blank');
+        };
+        indexContainer.appendChild(button);
+      });
+
+      document.getElementById('index-section').style.display = 'block';
+    }
+  </script>
 </body>
 </html>
