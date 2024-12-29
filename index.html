@@ -167,9 +167,9 @@
       filteredRows.forEach(row => {
         const button = document.createElement('button');
         button.className = 'button';
-        button.textContent = `View Index ${row.num_cc}`;
+        button.textContent = `View Index ${row.cc_id}`;
         button.onclick = () => {
-          const filePath = `https://trafficwaves.github.io/${date}/lane_${lane}/${row.num_cc}_15.svg`;
+          const filePath = `https://trafficwaves.github.io/${date}/lane_${lane}/${row.cc_id}_15.svg`;
           window.open(filePath, '_blank');
         };
         indexContainer.appendChild(button);
