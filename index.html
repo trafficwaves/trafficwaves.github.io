@@ -195,11 +195,17 @@
       const indexContainer = document.getElementById('index-container');
       indexContainer.innerHTML = '';
 
+      // Filter rows based on selected date and cluster
       const filteredRows = csvData.filter(row => row.date === date && row.cluster === cluster);
+
+      // Sort filtered rows by wave_length (descending order)
+      filteredRows.sort((a, b) => parseFloat(b.wave_length) - parseFloat(a.wave_length));
+
+      // Create buttons for each row
       filteredRows.forEach(row => {
         const button = document.createElement('button');
         button.className = 'button';
-        button.textContent = `View Index ${row.cc_id}`;
+        button.textContent = `View Index ${row.cc_id} (Wave Length: ${parseFloat(row.wave_length).toFixed(2)}, Bifurcations: ${row.num_bifurcations}, Merges: ${row.num_mergers})`;
         button.onclick = () => {
           const filePath = `https://trafficwaves.github.io/${date}/lane_${lane}/${row.cc_id}_15.svg`;
           window.open(filePath, '_blank');
@@ -209,6 +215,8 @@
 
       document.getElementById('index-section').style.display = 'block';
     }
+
+
 
     // Render Visualization
     function renderVisualization() {
