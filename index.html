@@ -176,10 +176,11 @@
 
     // Populate Cluster Dropdown
     function populateClusterDropdown() {
+      const date = document.getElementById('date-select').value;
       const clusterSelect = document.getElementById('cluster-select');
       clusterSelect.innerHTML = '<option value="">-- Select Cluster --</option>';
 
-      const uniqueClusters = [...new Set(csvData.map(row => row.cluster))];
+      const uniqueClusters = [...new Set(csvData.filter(row => row.date === date).map(row => row.cluster))];
       uniqueClusters.forEach(cluster => {
         const option = document.createElement('option');
         option.value = cluster;
