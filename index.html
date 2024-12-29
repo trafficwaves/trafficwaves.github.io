@@ -150,6 +150,7 @@
           throw new Error(`Failed to load ${csvFile}.`);
         }
         const csvText = await response.text();
+        console.log('CSV Content:', csvText); // Debugging
         parseCSV(csvText);
       } catch (error) {
         console.error('Error loading CSV:', error);
@@ -170,6 +171,7 @@
         return entry;
       });
 
+      console.log('Parsed CSV Data:', csvData); // Debugging
       populateClusterDropdown();
       renderVisualization();
     }
@@ -193,12 +195,15 @@
 
     // Show Index Section
     function showIndexSection() {
+      const date = document.getElementById('date-select').value;
       const cluster = document.getElementById('cluster-select').value;
 
       const indexContainer = document.getElementById('index-container');
       indexContainer.innerHTML = '';
 
       const filteredRows = csvData.filter(row => row.date === date && row.cluster === cluster);
+      console.log('Filtered Rows:', filteredRows);
+
       filteredRows.forEach(row => {
         const button = document.createElement('button');
         button.className = 'button';
@@ -213,40 +218,27 @@
       document.getElementById('index-section').style.display = 'block';
     }
 
-    // Render Cluster Visualization
+    // Render Visualization
     function renderVisualization() {
       const ctx = document.getElementById('clusterChart').getContext('2d');
       const data = csvData.map(row => ({
         x: parseFloat(row.num_bifurcations),
         y: parseFloat(row.wave_length),
         cluster: row.cluster,
-      }));
+      })).filter(row => !isNaN(row.x) && !isNaN(row.y));
 
-      const colors = ['#FF5733', '#33FF57', '#3357FF'];
+      console.log('Visualization Data:', data);
 
-      if (clusterChart) {
-        clusterChart.destroy();
-      }
+      if (clusterChart) clusterChart.destroy();
 
       clusterChart = new Chart(ctx, {
         type: 'scatter',
         data: {
-          datasets: data.map((point, index) => ({
+          datasets: data.map(point => ({
             label: `Cluster ${point.cluster}`,
             data: [{ x: point.x, y: point.y }],
-            backgroundColor: colors[index % colors.length],
-            pointRadius: 5,
           })),
-        },
-        options: {
-          plugins: {
-            legend: { labels: { font: { family: 'Lora', size: 14 } } }
-          },
-          scales: {
-            x: { title: { text: 'Number of Bifurcations', font: { family: 'Lora', size: 16 } } },
-            y: { title: { text: 'Wave Distance', font: { family: 'Lora', size: 16 } }, min = 0, max = 4},
-          },
-        },
+        }
       });
     }
   </script>
