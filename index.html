@@ -181,9 +181,9 @@
       filteredRows.forEach(row => {
         const button = document.createElement('button');
         button.className = 'button';
-        button.textContent = `View Index ${row.num_cc}`;
+        button.textContent = `View Index ${row.cc_id}`;
         button.onclick = () => {
-          const filePath = `https://trafficwaves.github.io/${row.date}/lane_${row.lane}/${row.num_cc}.svg`;
+          const filePath = `https://trafficwaves.github.io/${row.date}/lane_${row.lane}/${row.cc_id}_15.svg`;
           window.open(filePath, '_blank');
         };
         indexContainer.appendChild(button);
@@ -195,25 +195,34 @@
     // Render Cluster Visualization
     function renderVisualization() {
       const ctx = document.getElementById('clusterChart').getContext('2d');
-      const data = csvData.map(row => ({
-        x: parseFloat(row.num_bifurcations),
-        y: parseFloat(row.wave_length),
-        cluster: row.cluster,
-      }));
-
-      const colors = ['#FF5733', '#33FF57', '#3357FF'];
+      const uniqueClusters = [...new Set(csvData.map(row => row.cluster))];
+      const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33C4'];
 
       if (clusterChart) clusterChart.destroy();
 
       clusterChart = new Chart(ctx, {
         type: 'scatter',
         data: {
-          datasets: data.map((point, index) => ({
-            label: `Cluster ${point.cluster}`,
-            data: [{ x: point.x, y: point.y }],
+          datasets: uniqueClusters.map((cluster, index) => ({
+            label: `Cluster ${cluster}`,
+            data: csvData
+              .filter(row => row.cluster === cluster)
+              .map(row => ({ x: parseFloat(row.num_bifurcations), y: parseFloat(row.wave_length) })),
             backgroundColor: colors[index % colors.length],
           })),
         },
+        options: {
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top'
+            }
+          },
+          scales: {
+            x: { title: { display: true, text: 'Number of Bifurcations' } },
+            y: { title: { display: true, text: 'Wave Distance' } },
+          }
+        }
       });
     }
   </script>
