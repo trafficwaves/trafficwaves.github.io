@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <!-- Important for mobile responsiveness -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Traffic Wave Dynamics</title>
   <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&display=swap" rel="stylesheet">
@@ -12,11 +13,17 @@
       display: flex;
       flex-direction: row;
       margin: 20px;
+      /* Optional: set a max-width to keep content narrower on very wide screens */
+      max-width: 1200px; 
+      margin-left: auto;
+      margin-right: auto;
     }
 
     .controls {
       flex: 1;
       margin-right: 20px;
+      /* On really small screens, keep some padding so it doesn't bump against edges */
+      box-sizing: border-box;
     }
 
     .visualization {
@@ -24,6 +31,7 @@
       border: 1px solid #ccc;
       padding: 20px;
       text-align: center;
+      box-sizing: border-box;
     }
 
     /* Buttons */
@@ -69,6 +77,27 @@
 
     canvas {
       margin-top: 20px;
+      max-width: 100%;
+      height: auto; /* Let the canvas be auto-height, so it scales on mobile */
+    }
+
+    /* 
+      Media Query: 
+      Switch to column layout on smaller screens (e.g., below 768px). 
+      Adjust as needed.
+    */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column;
+        margin: 0; /* or keep some margin if you prefer */
+      }
+
+      .controls, .visualization {
+        flex: none;
+        width: 100%;
+        margin: 0; /* Remove side margin so they take full width on mobile */
+        margin-bottom: 20px; /* add some spacing at the bottom */
+      }
     }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -86,12 +115,11 @@
       the number of mergers, and wave length. 
     </p>
     <p>
-      The visualization panel on the right is a simplified scatter plot of the wave lenght (mile, in Y-axis) 
+      The visualization panel on the right is a simplified scatter plot of the wave length (mile, in Y-axis) 
       vs. the number of bifurcations (in X-axis).
     </p>
     <p>
       You can have an idea of how complex each wave component is (based on the number of bifurcations) and how long it is (wave length).
-    </p>
     </p>
     <p style="background-color: #FEEEB6; padding: 10px; border-radius: 5px;">
       Highlight: Wave topology can range from remarkably simple to incredibly complex.
@@ -104,11 +132,8 @@
     <p>
       Click on the button to view the detailed wave component in the SVG format.
     </p>
-    </p>
     <p style="background-color: #FEEEB6; padding: 12px; border-radius: 5px; font-size: 20px; font-weight: bold;">
       Enjoy the beauty of the wave dynamics!
-    </p>
-    </p>
     </p>
     <p>
       For technical details, please refer to the paper:
@@ -271,8 +296,6 @@
       document.getElementById('index-section').style.display = 'block';
     }
 
-
-
     // Render Visualization
     function renderVisualization() {
       const ctx = document.getElementById('clusterChart').getContext('2d');
@@ -326,7 +349,9 @@
               min: 0,
               max: 4
             }
-          }
+          },
+          responsive: true,    // Enable responsiveness for Chart.js
+          maintainAspectRatio: false // Allows the chart to resize based on parent element
         }
       });
     }
