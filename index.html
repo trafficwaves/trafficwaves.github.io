@@ -297,8 +297,7 @@
 
       document.getElementById('index-section').style.display = 'block';
     }
-
-    // Render Visualization
+    // Render Visualization with Clickable Points
     function renderVisualization() {
       const ctx = document.getElementById('clusterChart').getContext('2d');
       const groupedData = {};
@@ -346,17 +345,30 @@
             y: {
               title: {
                 display: true,
-                text: 'Wave Length' // Y-axis Title
+                text: 'Wave Length (mile)' // Y-axis Title
               },
               min: 0,
               max: 4
             }
           },
-          responsive: true,    // Enable responsiveness for Chart.js
-          maintainAspectRatio: false // Allows the chart to resize based on parent element
+          responsive: true,
+          maintainAspectRatio: false,
+          onClick: (event, elements) => {
+            if (elements.length > 0) {
+              const clickedElementIndex = elements[0].index;
+              const datasetIndex = elements[0].datasetIndex;
+              const clickedPoint = clusterChart.data.datasets[datasetIndex].data[clickedElementIndex];
+
+              if (clickedPoint) {
+                const filePath = `https://trafficwaves.github.io/${clickedPoint.date}/lane_${document.getElementById('lane-select').value}/${clickedPoint.cc_id}_15.svg`;
+                window.open(filePath, '_blank');
+              }
+            }
+          }
         }
       });
     }
+
   </script>
 </body>
 </html>
