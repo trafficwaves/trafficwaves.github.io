@@ -95,7 +95,7 @@
     </p>
     <p style="background-color: #FEEEB6; padding: 10px; border-radius: 5px;">
       Highlight: Wave topology can range from remarkably simple to incredibly complex.
-       Some waves travel over three miles without any bifurcations before merging, while others can bifurcate up to 20 times along their propagation!
+       Some waves travel over three miles without any bifurcations before merging, while others can bifurcate more than 10 times along their propagation!
     </p>
     <p>
       Pick the cluster you're interested in, click on "Next" and you can view the detailed wave component by clicking on the buttons in the "Available Indices".
@@ -128,7 +128,10 @@
   }
       </pre>
     </div>
-  
+    <p>
+      Contact <a href="mailto:
+      junyi.ji@vanderbilt.edu" style="color: #3498db; text-decoration: none;"> Junyi Ji</a> at Vanderbilt University if you have any questions or suggestions.
+    </p>
 
     <!-- Date Selection -->
     <div class="input-field">
@@ -277,7 +280,14 @@
 
       csvData.forEach(row => {
         if (!groupedData[row.cluster]) groupedData[row.cluster] = [];
-        groupedData[row.cluster].push({ x: parseFloat(row.num_bifurcations), y: parseFloat(row.wave_length) });
+        groupedData[row.cluster].push({
+          x: parseFloat(row.num_bifurcations),
+          y: parseFloat(row.wave_length),
+          date: row.date,
+          cc_id: row.cc_id,
+          num_bifurcations: row.num_bifurcations,
+          num_mergers: row.num_mergers
+        });
       });
 
       const datasets = Object.keys(groupedData).map(cluster => ({
@@ -291,6 +301,16 @@
         type: 'scatter',
         data: { datasets },
         options: {
+          plugins: {
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const point = context.raw;
+                  return `[${point.date}, index id: ${point.cc_id}, bifurcations: ${point.num_bifurcations}, mergers: ${point.num_mergers}, wave length: ${point.y.toFixed(2)} mile]`;
+                }
+              }
+            }
+          },
           scales: {
             x: {
               title: {
@@ -303,8 +323,8 @@
                 display: true,
                 text: 'Wave Length' // Y-axis Title
               },
-              min : 0,
-              max : 4
+              min: 0,
+              max: 4
             }
           }
         }
