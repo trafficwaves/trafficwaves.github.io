@@ -102,7 +102,7 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body onload="preloadLane1()">
   <!-- Controls Panel -->
   <div class="controls">
     <h1> Gallery of Traffic Wave Dynamics</h1>
@@ -204,7 +204,7 @@
 
   <!-- Visualization Panel -->
   <div class="visualization">
-    <h2>Cluster Visualization</h2>
+    <h2 id="visualization-title">Cluster Visualization for Lane 1</h2>
     <canvas id="clusterChart"></canvas>
   </div>
 
@@ -212,9 +212,15 @@
     let csvData = [];
     let clusterChart;
 
+    async function preloadLane1() {
+      document.getElementById('lane-select').value = '1';
+      await loadLaneCSV();
+    }
+
     // Load CSV Data
     async function loadLaneCSV() {
       const lane = document.getElementById('lane-select').value;
+      document.getElementById('visualization-title').innerText = `Cluster Visualization for Lane ${lane}`;
       if (!lane) {
         alert('Please select a lane first.');
         return;
