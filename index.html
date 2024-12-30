@@ -113,7 +113,7 @@
       2-hour demo of the speed field data from the I-24 MOTION INCEPTIONv1 dataset.
     </p>
     <p>
-      You can select the lane number (defualt lane 1, HOV lane) and then click on the "Load Lane Data" button to view the clusters of wave components by the number of bifurcations, 
+      You can select the lane number (defualt lane 1, i.e. <a href="https://www.tn.gov/tdot/traffic-design/high-occupancy-vehicle-hov-lane.html"  style="color: #3498db; text-decoration: none;">HOV lane </a>) and then click on the "Load Lane Data" button to view the clusters of wave components by the number of bifurcations, 
       the number of mergers, and wave length. 
     </p>
     <!-- Lane Selection -->
@@ -204,11 +204,26 @@
     </div>
   </div>
 
-  <!-- Visualization Panel -->
-  <div class="visualization">
-    <h2 id="visualization-title">Cluster Visualization for Lane 1</h2>
-    <canvas id="clusterChart"></canvas>
-  </div>
+
+    <!-- Visualization Panel -->
+    <div class="visualization">
+        <h2 id="visualization-title">Cluster Visualization for Lane 1</h2>
+        
+        <!-- Add Lane Selection Inside Visualization -->
+        <div class="input-field" style="margin-bottom: 10px;">
+        <label for="lane-select-visual">Select Lane:</label>
+        <select id="lane-select-visual">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+        <button class="button" onclick="loadLaneCSVFromVisualization()">Load Lane Data</button>
+        </div>
+        
+        <canvas id="clusterChart"></canvas>
+    </div>
+  
 
   <script>
     let csvData = [];
@@ -218,10 +233,16 @@
       document.getElementById('lane-select').value = '1';
       await loadLaneCSV();
     }
-
+    // Load Lane Data from Visualization Panel
+    async function loadLaneCSVFromVisualization() {
+    const lane = document.getElementById('lane-select-visual').value;
+    document.getElementById('lane-select').value = lane; // Sync with main dropdown
+    await loadLaneCSV(); // Reuse the existing loadLaneCSV function
+    }
     // Load CSV Data
     async function loadLaneCSV() {
       const lane = document.getElementById('lane-select').value;
+      document.getElementById('lane-select-visual').value = lane; // Sync with main dropdown
       document.getElementById('visualization-title').innerText = `Cluster Visualization for Lane ${lane}`;
       if (!lane) {
         alert('Please select a lane first.');
